@@ -41,3 +41,4 @@ All files are parsed and rendered locally on the device inside an isolated WebVi
 - [ ] Export to PDF
 - [ ] Cell selection and copying in spreadsheets
 - [ ] Vertical scroll mode for PDF, comics, and presentations (Google Docs style)
+- [ ] Updater (notify only)
