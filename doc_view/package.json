@@ -1,0 +1,24 @@
+{
+  "name": "doc-viewer",
+  "version": "0.1.6",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "inu check",
+    "typecheck": "tsc --noEmit",
+    "build": "inu build",
+    "push": "inu push",
+    "dev": "inu dev",
+    "test": "node --experimental-strip-types --import ./tests/register-loader.js --test tests/**/*.test.ts"
+  },
+  "dependencies": {
+    "fast-xml-parser": "5.11.2"
+  },
+  "devDependencies": {
+    "@inugram/cli": "45.0.0",
+    "@inugram/plugin-types": "45.0.0",
+    "fflate": "0.8.3",
+    "typescript": "5.7.3"
+  }
+}
+

@@ -1,0 +1,6 @@
+packages:
+  - 'doc_view'
+  - 'plugins/*'
+
+allowBuilds:
+  esbuild: true

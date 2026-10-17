@@ -1,0 +1,11 @@
+{
+  "name": "inugram-plugins",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "check": "pnpm -r --if-present run check",
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "build": "pnpm -r --if-present run build"
+  },
+  "packageManager": "pnpm@11.28.5"
+}
