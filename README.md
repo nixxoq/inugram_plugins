@@ -1,6 +1,16 @@
 # Inugram Plugins
 
-My plugins collection for Inugram 
+Plugins collection for Inugram.
+
+## Official Channel & Plugin Repository
+
+All plugin releases are published to our official Inugram repository channel:  
+👉 **[@inu_nixxoq](https://t.me/inu_nixxoq)**
+
+To receive automatic 1-tap plugin updates directly in Inugram:
+1. Open Inugram.
+2. Go to **Settings** → **Plugins** → **Repositories**.
+3. Tap **+** and add `@inu_nixxoq`.
 
 ## Plugins
 
@@ -21,5 +31,11 @@ pnpm run typecheck
 
 # Build all plugins
 pnpm run build
+
+# Run unit tests
+pnpm test
+
+# Publish plugin to Telegram channel (@inu_nixxoq)
+pnpm publish:tg
 ```
 

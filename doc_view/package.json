@@ -9,7 +9,8 @@
     "build": "inu build",
     "push": "inu push",
     "dev": "inu dev",
-    "test": "node --experimental-strip-types --import ./tests/register-loader.js --test tests/**/*.test.ts"
+    "test": "node --experimental-strip-types --import ./tests/register-loader.js --test tests/**/*.test.ts",
+    "publish:tg": "node ../scripts/publish-telegram.mjs"
   },
   "dependencies": {
     "fast-xml-parser": "5.11.2"
