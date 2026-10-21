@@ -20,6 +20,7 @@ export default defineConfig({
           'unsafe.jvm',
           'clipboard.write',
           'openUrl',
+          'sqlite',
         ],
       },
     },

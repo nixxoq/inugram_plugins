@@ -970,19 +970,14 @@ export class DocViewer {
     try {
       const total = this.isPdf ? this.pdfPageCount : this.isComic ? this.comicTotalPages : this.pages.length
       if (total <= 1) return
-      const raw = settings.get('history') || '{}'
-      const hist = typeof raw === 'string' ? JSON.parse(raw) : raw
-      hist[this.filePath] = { page: this.currentPage, total, ts: Date.now() }
-      settings.set('history', JSON.stringify(hist))
+      settings.saveReadingPosition(this.filePath, this.currentPage, total)
     } catch { }
   }
 
   private getSavedPosition(): number {
     try {
-      const raw = settings.get('history') || '{}'
-      const hist = typeof raw === 'string' ? JSON.parse(raw) : raw
-      const item = hist[this.filePath]
-      if (item && typeof item.page === 'number') return item.page
+      const page = settings.getReadingPosition(this.filePath)
+      if (typeof page === 'number') return page
     } catch { }
     return 0
   }
