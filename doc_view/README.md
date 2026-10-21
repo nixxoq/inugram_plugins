@@ -42,3 +42,13 @@ All files are parsed and rendered locally on the device inside an isolated WebVi
 - [ ] Cell selection and copying in spreadsheets
 - [ ] Vertical scroll mode for PDF, comics, and presentations (Google Docs style)
 - [ ] Updater (notify only)
+
+## Requirements
+
+- Inugram v49+
+- Node.js 20+ & pnpm
+
+## Requirements
+
+- Inugram v49+
+- Node.js 20+ & pnpm
