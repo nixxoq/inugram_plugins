@@ -19,6 +19,7 @@ export const ruDict: TranslationDictionary = {
   settings: {
     title: 'Просмотрщик документов',
     githubRepo: 'Github',
+    telegramChannel: 'Канал с обновлениями',
     language: 'Язык',
     languageSystem: 'Системный',
     languageEn: 'English',

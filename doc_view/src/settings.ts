@@ -184,11 +184,12 @@ export function getPluginVersion(): string {
 }
 
 export const GITHUB_REPO_URL = 'https://github.com/nixxoq/inugram_plugins'
+export const TELEGRAM_CHANNEL_URL = 'https://t.me/inu_nixxoq'
 
-export function openGithubRepo(): void {
+export function openUrlSafely(targetUrl: string): void {
   try {
     if (typeof inu !== 'undefined' && typeof inu?.openUrl === 'function') {
-      inu.openUrl(GITHUB_REPO_URL)
+      inu.openUrl(targetUrl)
       return
     }
   } catch {}
@@ -196,7 +197,7 @@ export function openGithubRepo(): void {
   try {
     const IntentCls = inu.jvm.cls('android.content.Intent')
     const UriCls = inu.jvm.cls('android.net.Uri')
-    const uri = UriCls.callStatic('parse', GITHUB_REPO_URL)
+    const uri = UriCls.callStatic('parse', targetUrl)
     const ACTION_VIEW = String(IntentCls.getStaticField('ACTION_VIEW'))
     const intent = new IntentCls(ACTION_VIEW, uri)
     const FLAG_ACTIVITY_NEW_TASK = Number(IntentCls.getStaticField('FLAG_ACTIVITY_NEW_TASK'))
@@ -206,6 +207,14 @@ export function openGithubRepo(): void {
     const appCtx = ApplicationLoaderCls.getStaticField('applicationContext') as JavaObject
     appCtx.call('startActivity', intent)
   } catch {}
+}
+
+export function openGithubRepo(): void {
+  openUrlSafely(GITHUB_REPO_URL)
+}
+
+export function openTelegramChannel(): void {
+  openUrlSafely(TELEGRAM_CHANNEL_URL)
 }
 
 export const settings = new SettingsManager()
@@ -222,6 +231,15 @@ export function createSettingsPage(): inu.ui.UIPage {
       if (selectedLangIdx === -1) selectedLangIdx = 0
 
       return [
+        inu.ui.button({
+          id: 'pref_telegram_channel',
+          text: t('settings.telegramChannel'),
+          subtitle: '@inu_nixxoq',
+          icon: inu.android?.resourceIcon ? inu.android.resourceIcon('msg_channel') : inu.icons?.common?.('channel'),
+          onClick: () => {
+            openTelegramChannel()
+          },
+        }),
         inu.ui.button({
           id: 'pref_github_repo',
           text: t('settings.githubRepo'),
