@@ -28,194 +28,80 @@ export const DEFAULT_SETTINGS: DocViewerSettings = {
 
 const STORAGE_PREFIX = 'doc_view:'
 
+function parseVal<K extends keyof DocViewerSettings>(key: K, str: string | null): DocViewerSettings[K] {
+  const def = DEFAULT_SETTINGS[key]
+  if (str === null || str === undefined) return def
+  if (typeof def === 'boolean') return (str === '1' || str === 'true') as DocViewerSettings[K]
+  if (typeof def === 'number') {
+    const n = Number(str)
+    return (!isNaN(n) ? n : def) as DocViewerSettings[K]
+  }
+  return str as DocViewerSettings[K]
+}
+
 class SettingsManager {
   private cache: DocViewerSettings = { ...DEFAULT_SETTINGS }
   private db: inu.sqlite.Database | null = null
-  private getSettingStmt: inu.sqlite.Statement<{ value: string }> | null = null
-  private setSettingStmt: inu.sqlite.Statement | null = null
-  private getPositionStmt: inu.sqlite.Statement<{ page: number }> | null = null
-  private setPositionStmt: inu.sqlite.Statement | null = null
 
   constructor() {
-    this.initDb()
-    this.migrateIfNeeded()
+    try {
+      if (typeof inu !== 'undefined' && inu.sqlite?.open) {
+        this.db = inu.sqlite.open()
+        this.db.exec(`
+          CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
+          CREATE TABLE IF NOT EXISTS reading_history (file_path TEXT PRIMARY KEY, page INTEGER NOT NULL, total INTEGER NOT NULL, updated_at INTEGER NOT NULL);
+        `)
+      }
+    } catch (e) {
+      console.warn('[DocViewer] SQLite init failed:', e)
+    }
+    this.migrate()
     this.load()
   }
 
-  private initDb(): void {
+  private migrate(): void {
+    if (typeof localStorage === 'undefined') return
     try {
-      if (typeof inu !== 'undefined' && inu.sqlite && typeof inu.sqlite.open === 'function') {
-        const db = inu.sqlite.open()
-        db.exec(`
-          CREATE TABLE IF NOT EXISTS settings (
-            key TEXT PRIMARY KEY,
-            value TEXT NOT NULL
-          );
-          CREATE TABLE IF NOT EXISTS reading_history (
-            file_path TEXT PRIMARY KEY,
-            page INTEGER NOT NULL,
-            total INTEGER NOT NULL,
-            updated_at INTEGER NOT NULL
-          );
-        `)
-        this.db = db
-        this.getSettingStmt = db.prepare<{ value: string }>('SELECT value FROM settings WHERE key = ?')
-        this.setSettingStmt = db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)')
-        this.getPositionStmt = db.prepare<{ page: number }>('SELECT page FROM reading_history WHERE file_path = ?')
-        this.setPositionStmt = db.prepare(
-          'INSERT OR REPLACE INTO reading_history (file_path, page, total, updated_at) VALUES (?, ?, ?, ?)'
-        )
-      }
-    } catch (e) {
-      console.warn('[DocViewer] SQLite initialization error, falling back to localStorage:', e)
-      this.db = null
-      this.getSettingStmt = null
-      this.setSettingStmt = null
-      this.getPositionStmt = null
-      this.setPositionStmt = null
-    }
-  }
-
-  private migrateIfNeeded(): void {
-    if (typeof localStorage !== 'undefined') {
-      try {
-        const legacy = localStorage.getItem('doc_viewer_settings')
-        if (legacy) {
-          const parsed = JSON.parse(legacy)
-          if (parsed && typeof parsed === 'object') {
-            for (const key of Object.keys(DEFAULT_SETTINGS) as Array<keyof DocViewerSettings>) {
-              if (key in parsed) {
-                const val = parsed[key]
-                const strVal = typeof val === 'boolean' ? (val ? '1' : '0') : String(val)
-                localStorage.setItem(STORAGE_PREFIX + key, strVal)
-              }
-            }
-          }
-          localStorage.removeItem('doc_viewer_settings')
+      const legacy = localStorage.getItem('doc_viewer_settings')
+      if (legacy) {
+        const obj = JSON.parse(legacy)
+        for (const k of Object.keys(DEFAULT_SETTINGS)) {
+          if (k in obj) localStorage.setItem(STORAGE_PREFIX + k, String(obj[k]))
         }
-      } catch { }
-
-      if (this.db && this.setSettingStmt) {
-        try {
-          const insertMany = this.db.transaction(() => {
-            for (const key of Object.keys(DEFAULT_SETTINGS) as Array<keyof DocViewerSettings>) {
-              const existing = this.getSettingStmt?.get(key)
-              if (!existing) {
-                const item = localStorage.getItem(STORAGE_PREFIX + key) ?? localStorage.getItem(key)
-                if (item !== null) {
-                  this.setSettingStmt?.run(key, item)
-                }
-              }
-            }
-          })
-          insertMany()
-
-          const histRaw = localStorage.getItem(STORAGE_PREFIX + 'history') ?? localStorage.getItem('history')
-          if (histRaw && this.setPositionStmt) {
-            try {
-              const hist = JSON.parse(histRaw)
-              if (hist && typeof hist === 'object') {
-                const insertHistory = this.db.transaction(() => {
-                  for (const [filePath, info] of Object.entries(hist)) {
-                    const item = info as any
-                    if (item && typeof item.page === 'number') {
-                      this.setPositionStmt?.run(
-                        filePath,
-                        item.page,
-                        typeof item.total === 'number' ? item.total : 0,
-                        typeof item.ts === 'number' ? item.ts : Date.now()
-                      )
-                    }
-                  }
-                })
-                insertHistory()
-              }
-            } catch { }
-          }
-        } catch (err) {
-          console.warn('[DocViewer] Migration from localStorage to SQLite failed:', err)
-        }
+        localStorage.removeItem('doc_viewer_settings')
       }
-    }
+    } catch {}
   }
 
   load(): void {
     try {
-      const loaded: Partial<DocViewerSettings> = {}
-      for (const key of Object.keys(DEFAULT_SETTINGS) as Array<keyof DocViewerSettings>) {
-        let item: string | null = null
-
-        if (this.getSettingStmt) {
-          try {
-            const row = this.getSettingStmt.get(key)
-            if (row && typeof row.value === 'string') {
-              item = row.value
-            }
-          } catch { }
-        }
-
-        if (item === null && typeof localStorage !== 'undefined') {
-          try {
-            item = localStorage.getItem(STORAGE_PREFIX + key) ?? localStorage.getItem(key)
-          } catch { }
-        }
-
-        if (item === null) {
-          loaded[key] = DEFAULT_SETTINGS[key] as any
-          continue
-        }
-
-        const defaultVal = DEFAULT_SETTINGS[key]
-        if (typeof defaultVal === 'boolean') {
-          loaded[key] = (item === '1' || item === 'true') as any
-        } else if (typeof defaultVal === 'number') {
-          const num = Number(item)
-          loaded[key] = (!isNaN(num) ? num : defaultVal) as any
-        } else {
-          loaded[key] = item as any
+      const cache = this.cache as Record<string, any>
+      if (typeof localStorage !== 'undefined') {
+        for (const key of Object.keys(DEFAULT_SETTINGS) as Array<keyof DocViewerSettings>) {
+          const item = localStorage.getItem(STORAGE_PREFIX + key) ?? localStorage.getItem(key)
+          if (item !== null) cache[key] = parseVal(key, item)
         }
       }
-      this.cache = { ...DEFAULT_SETTINGS, ...loaded }
-    } catch {
-      this.cache = { ...DEFAULT_SETTINGS }
-    }
+      if (this.db) {
+        const rows = this.db.prepare<{ key: string; value: string }>('SELECT key, value FROM settings').all()
+        if (rows.length > 0) {
+          for (const row of rows) {
+            const k = row.key as keyof DocViewerSettings
+            if (k in DEFAULT_SETTINGS) cache[k] = parseVal(k, row.value)
+          }
+        } else if (typeof localStorage !== 'undefined') {
+          for (const key of Object.keys(DEFAULT_SETTINGS) as Array<keyof DocViewerSettings>) {
+            const item = localStorage.getItem(STORAGE_PREFIX + key) ?? localStorage.getItem(key)
+            if (item !== null) {
+              this.db.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run(key, item)
+            }
+          }
+        }
+      }
+    } catch {}
   }
 
   get<K extends keyof DocViewerSettings>(key: K): DocViewerSettings[K] {
-    if (this.getSettingStmt) {
-      try {
-        const row = this.getSettingStmt.get(key)
-        if (row && typeof row.value === 'string') {
-          const defaultVal = DEFAULT_SETTINGS[key]
-          let parsed: any = row.value
-          if (typeof defaultVal === 'boolean') parsed = row.value === '1' || row.value === 'true'
-          else if (typeof defaultVal === 'number') {
-            const num = Number(row.value)
-            parsed = !isNaN(num) ? num : defaultVal
-          }
-          this.cache[key] = parsed
-          return parsed
-        }
-      } catch { }
-    }
-
-    if (typeof localStorage !== 'undefined') {
-      try {
-        const item = localStorage.getItem(STORAGE_PREFIX + key) ?? localStorage.getItem(key)
-        if (item !== null) {
-          const defaultVal = DEFAULT_SETTINGS[key]
-          let parsed: any = item
-          if (typeof defaultVal === 'boolean') parsed = item === '1' || item === 'true'
-          else if (typeof defaultVal === 'number') {
-            const num = Number(item)
-            parsed = !isNaN(num) ? num : defaultVal
-          }
-          this.cache[key] = parsed
-          return parsed
-        }
-      } catch { }
-    }
-
     return this.cache[key] ?? DEFAULT_SETTINGS[key]
   }
 
@@ -223,61 +109,59 @@ class SettingsManager {
     this.cache[key] = value
     const strVal = typeof value === 'boolean' ? (value ? '1' : '0') : String(value)
 
-    if (this.setSettingStmt) {
-      try {
-        this.setSettingStmt.run(key, strVal)
-      } catch (err) {
-        console.warn('[DocViewer] SQLite set failed:', err)
-      }
-    }
+    try {
+      this.db?.prepare('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)').run(key, strVal)
+    } catch {}
 
     if (typeof localStorage !== 'undefined') {
       try {
         localStorage.setItem(STORAGE_PREFIX + key, strVal)
         localStorage.setItem(key, strVal)
-      } catch { }
+      } catch {}
     }
   }
 
   isCategoryEnabled(cat: FormatCategory): boolean {
-    return !!this.cache[cat]
+    return Boolean(this.cache[cat])
   }
 
   getReadingPosition(filePath: string): number | undefined {
-    if (this.getPositionStmt) {
-      try {
-        const row = this.getPositionStmt.get(filePath)
-        if (row && typeof row.page === 'number') {
-          return row.page
-        }
-      } catch { }
-    }
+    try {
+      const row = this.db?.prepare<{ page: number }>('SELECT page FROM reading_history WHERE file_path = ?').get(filePath)
+      if (row && typeof row.page === 'number') return row.page
+    } catch {}
 
     try {
-      const raw = this.get('history') || '{}'
-      const hist = typeof raw === 'string' ? JSON.parse(raw) : raw
+      const hist = JSON.parse(this.cache.history || '{}')
       const item = hist[filePath]
-      if (item && typeof item.page === 'number') return item.page
-    } catch { }
-
+      if (item && typeof item.page === 'number') {
+        this.db?.prepare('INSERT OR REPLACE INTO reading_history (file_path, page, total, updated_at) VALUES (?, ?, ?, ?)').run(
+          filePath,
+          item.page,
+          item.total || 0,
+          item.ts || Date.now()
+        )
+        return item.page
+      }
+    } catch {}
     return undefined
   }
 
   saveReadingPosition(filePath: string, page: number, total: number): void {
-    if (this.setPositionStmt) {
-      try {
-        this.setPositionStmt.run(filePath, page, total, Date.now())
-      } catch (err) {
-        console.warn('[DocViewer] SQLite saveReadingPosition failed:', err)
-      }
-    }
+    try {
+      this.db?.prepare('INSERT OR REPLACE INTO reading_history (file_path, page, total, updated_at) VALUES (?, ?, ?, ?)').run(
+        filePath,
+        page,
+        total,
+        Date.now()
+      )
+    } catch {}
 
     try {
-      const raw = this.get('history') || '{}'
-      const hist = typeof raw === 'string' ? JSON.parse(raw) : raw
+      const hist = JSON.parse(this.cache.history || '{}')
       hist[filePath] = { page, total, ts: Date.now() }
       this.set('history', JSON.stringify(hist))
-    } catch { }
+    } catch {}
   }
 }
 
