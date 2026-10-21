@@ -4,3 +4,7 @@ packages:
 
 allowBuilds:
   esbuild: true
+
+minimumReleaseAgeExclude:
+  - '@inugram/cli@49.0.0'
+  - '@inugram/plugin-types@49.0.0'

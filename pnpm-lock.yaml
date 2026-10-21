@@ -13,16 +13,16 @@ importers:
       fast-xml-parser:
         specifier: 5.11.2
         version: 5.11.2
+    devDependencies:
+      '@inugram/cli':
+        specifier: ^49.0.0
+        version: 49.0.0(@inugram/plugin-types@49.0.0)(typescript@5.7.3)
+      '@inugram/plugin-types':
+        specifier: ^49.0.0
+        version: 49.0.0
       fflate:
         specifier: 0.8.3
         version: 0.8.3
-    devDependencies:
-      '@inugram/cli':
-        specifier: 45.0.0
-        version: 45.0.0(@inugram/plugin-types@45.0.0)(typescript@5.7.3)
-      '@inugram/plugin-types':
-        specifier: 45.0.0
-        version: 45.0.0
       typescript:
         specifier: 5.7.3
         version: 5.7.3
@@ -188,8 +188,8 @@ packages:
   '@fuman/utils@0.0.19':
     resolution: {integrity: sha512-4qVrZ9AjKYztLJsNr1Tp7kL48b22dvVLN1iVW+Me8ZSQ0ILN0qknoxjsczVPReF7+GDWgknNxR2l6ggrA4SZyw==}
 
-  '@inugram/cli@45.0.0':
-    resolution: {integrity: sha512-o8KXIatzQdyW5q2VoGwhh3lJb74Uvco8d3efNZOeYIE9CRVtaQeScUM7is8K8CN8fSjDMbcgZzp1WWsxnnX1ig==}
+  '@inugram/cli@49.0.0':
+    resolution: {integrity: sha512-er7o8A/NBNzcqQMvS7K6IE4btSISi9sLINVJ6tBEkdd1zNEv2mVn/ybtQHB2scyrmIQln1R3Y12jfXhp4OATKw==}
     engines: {node: '>=20'}
     hasBin: true
     peerDependencies:
@@ -201,8 +201,8 @@ packages:
       typescript:
         optional: true
 
-  '@inugram/plugin-types@45.0.0':
-    resolution: {integrity: sha512-5ZvzTMVz0vXrEcge/xo+NTXqW2LccqsgW9RBkaymmDbk1Bc95xQ5yEp07HfWAo0iBjsUlCDo9iJUUqQNqclr7A==}
+  '@inugram/plugin-types@49.0.0':
+    resolution: {integrity: sha512-ypV9Cr9yylMlgKfcAv42kE1rFSOj5nCUyldH0VqLe6VB3vztaccAR9zhgtPDG5/WQTQyNHqxIkP5mj95VyS9nA==}
 
   '@nodable/entities@3.1.0':
     resolution: {integrity: sha512-LsS/DjHr+uDM647Gru/cA8+J3a3HfhttwCKLyuoyN7yXTFCxKBtSgMQBvrW9yNPa2/zDRUNuGPaH5QUFoa4arQ==}
@@ -469,7 +469,7 @@ snapshots:
 
   '@fuman/utils@0.0.19': {}
 
-  '@inugram/cli@45.0.0(@inugram/plugin-types@45.0.0)(typescript@5.7.3)':
+  '@inugram/cli@49.0.0(@inugram/plugin-types@49.0.0)(typescript@5.7.3)':
     dependencies:
       '@fuman/utils': 0.0.19
       '@oxc-project/types': 0.150.0
@@ -479,10 +479,10 @@ snapshots:
       picocolors: 1.1.1
       valibot: 1.5.0(typescript@5.7.3)
     optionalDependencies:
-      '@inugram/plugin-types': 45.0.0
+      '@inugram/plugin-types': 49.0.0
       typescript: 5.7.3
 
-  '@inugram/plugin-types@45.0.0': {}
+  '@inugram/plugin-types@49.0.0': {}
 
   '@nodable/entities@3.1.0': {}
 

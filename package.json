@@ -5,7 +5,8 @@
   "scripts": {
     "check": "pnpm -r --if-present run check",
     "typecheck": "pnpm -r --if-present run typecheck",
-    "build": "pnpm -r --if-present run build"
+    "build": "pnpm -r --if-present run build",
+    "test": "pnpm -r --if-present run test"
   },
   "packageManager": "pnpm@11.28.5"
 }

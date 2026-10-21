@@ -132,7 +132,7 @@ export function getPluginVersion(): string {
       if (manifest?.version) return String(manifest.version).trim()
     }
   } catch {}
-  return '0.1.6'
+  return 'unknown'
 }
 
 export const GITHUB_REPO_URL = 'https://github.com/nixxoq/inugram_plugins'

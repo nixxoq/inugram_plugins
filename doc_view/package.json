@@ -1,6 +1,6 @@
 {
   "name": "doc-viewer",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "type": "module",
   "scripts": {
@@ -15,8 +15,8 @@
     "fast-xml-parser": "5.11.2"
   },
   "devDependencies": {
-    "@inugram/cli": "45.0.0",
-    "@inugram/plugin-types": "45.0.0",
+    "@inugram/cli": "^49.0.0",
+    "@inugram/plugin-types": "^49.0.0",
     "fflate": "0.8.3",
     "typescript": "5.7.3"
   }

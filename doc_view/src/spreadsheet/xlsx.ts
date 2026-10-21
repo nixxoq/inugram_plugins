@@ -358,7 +358,7 @@ export async function buildXlsxHtml(filePath: string, theme: ThemeColors): Promi
     const sheetsForApp: SpreadsheetSheetSpec[] = []
 
     for (let sIdx = 0; sIdx < sheetSpecs.length; sIdx++) {
-      if (sIdx > 0) await new Promise((resolve) => setTimeout(resolve, 0))
+      if (sIdx > 0) await new Promise<void>((resolve) => setTimeout(() => resolve(), 0))
       const { name, part } = sheetSpecs[sIdx]
       const rawSheetXml = readZipEntryText(zip || filePath, part)
       if (!rawSheetXml) continue
@@ -511,7 +511,7 @@ export async function buildXlsxHtml(filePath: string, theme: ThemeColors): Promi
       const tableRowsHtml: string[] = []
 
       for (let r = 0; r <= maxRowIdx; r++) {
-        if (r > 0 && r % 80 === 0) await new Promise((resolve) => setTimeout(resolve, 0))
+        if (r > 0 && r % 80 === 0) await new Promise<void>((resolve) => setTimeout(() => resolve(), 0))
         const rowCellsHtml: string[] = []
         rowCellsHtml.push(`<th class="row-header" scope="row">${r + 1}</th>`)
 
@@ -683,7 +683,7 @@ export async function parseXlsxDocument(filePath: string): Promise<PaginatedDoc>
   const pages: string[] = []
 
   for (const { title, part } of sheetEntries) {
-    await new Promise((resolve) => setTimeout(resolve, 0))
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 0))
     const sheetXml = readZipEntryText(filePath, part)
     if (!sheetXml) continue
 
@@ -695,7 +695,7 @@ export async function parseXlsxDocument(filePath: string): Promise<PaginatedDoc>
     const rowList = Array.isArray(sheetData.row) ? sheetData.row : sheetData.row ? [sheetData.row] : []
 
     for (let rIdx = 0; rIdx < rowList.length; rIdx++) {
-      if (rIdx > 0 && rIdx % 80 === 0) await new Promise((resolve) => setTimeout(resolve, 0))
+      if (rIdx > 0 && rIdx % 80 === 0) await new Promise<void>((resolve) => setTimeout(() => resolve(), 0))
       const r = rowList[rIdx]
       const rNum = parseInt(String(r?.['@_r'] || ''), 10)
       if (!isNaN(rNum)) {
