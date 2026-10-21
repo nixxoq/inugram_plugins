@@ -6,7 +6,8 @@
     "check": "pnpm -r --if-present run check",
     "typecheck": "pnpm -r --if-present run typecheck",
     "build": "pnpm -r --if-present run build",
-    "test": "pnpm -r --if-present run test"
+    "test": "pnpm -r --if-present run test",
+    "publish:tg": "node scripts/publish-telegram.mjs"
   },
   "packageManager": "pnpm@11.28.5"
 }

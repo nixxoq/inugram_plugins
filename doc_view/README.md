@@ -29,6 +29,16 @@ All files are parsed and rendered locally on the device inside an isolated WebVi
 - Keep screen on while reading
 - Per-category format toggles in settings
 
+## Installation & Updates
+
+Install the plugin and receive automatic 1-tap updates via the official Inugram repository channel:
+
+1. In Inugram, go to **Settings** → **Plugins** → **Repositories**.
+2. Tap **+** and enter `@inu_nixxoq` (or visit [t.me/inu_nixxoq](https://t.me/inu_nixxoq)).
+3. Tap **Install** on Doc Viewer.
+
+Whenever a new release is posted, Inugram will prompt you to update in 1 tap, preserving all settings, reading history, and SQLite data.
+
 ## Planned
 
 - [ ] 7z archives (.7z)
@@ -41,12 +51,6 @@ All files are parsed and rendered locally on the device inside an isolated WebVi
 - [ ] Export to PDF
 - [ ] Cell selection and copying in spreadsheets
 - [ ] Vertical scroll mode for PDF, comics, and presentations (Google Docs style)
-- [ ] Updater (notify only)
-
-## Requirements
-
-- Inugram v49+
-- Node.js 20+ & pnpm
 
 ## Requirements
 
