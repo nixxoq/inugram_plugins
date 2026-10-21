@@ -17,6 +17,7 @@ export const enDict = {
   settings: {
     title: 'Document Viewer',
     githubRepo: 'Github',
+    telegramChannel: 'Telegram Channel',
     language: 'Language',
     languageSystem: 'System default',
     languageEn: 'English',
